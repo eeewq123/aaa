@@ -51,7 +51,7 @@ if (empty($wr['wr_id']))
 if ($is_member)
 {
     $mb_id = $member['mb_id'];
-    // 4.00.13 - 실명 사용일때 댓글에 별명으로 입력되던 오류를 수정
+    // 4.00.13 - 실명 사용일때 댓글에 닉네임으로 입력되던 오류를 수정
     $wr_name = $board['bo_use_name'] ? $member['mb_name'] : $member['mb_nick'];
     $wr_password = $member['mb_password'];
     $wr_email = $member['mb_email'];
@@ -218,20 +218,17 @@ if ($w == 'c') // 댓글 입력
         // 최고관리자에게 보내는 메일
         if ($config['cf_email_wr_super_admin']) $array_email[] = $super_admin['mb_email'];
 
-        // 옵션에 메일받기가 체크되어 있고, 게시자의 메일이 있다면
-        if (strstr($wr['wr_option'], 'mail') && $wr['wr_email']) {
-            // 원글 메일발송에 체크가 되어 있다면
-            if ($config['cf_email_wr_write']) $array_email[] = $wr['wr_email'];
+        // 원글게시자에게 보내는 메일
+        if ($config['cf_email_wr_write']) $array_email[] = $wr['wr_email'];
 
-            // 댓글 쓴 모든이에게 메일 발송이 되어 있다면 (자신에게는 발송하지 않는다)
-            if ($config['cf_email_wr_comment_all']) {
-                $sql = " select distinct wr_email from {$write_table}
-                            where wr_email not in ( '{$wr['wr_email']}', '{$member['mb_email']}', '' )
-                            and wr_parent = '$wr_id' ";
-                $result = sql_query($sql);
-                while ($row=sql_fetch_array($result))
-                    $array_email[] = $row['wr_email'];
-            }
+        // 댓글 쓴 모든이에게 메일 발송이 되어 있다면 (자신에게는 발송하지 않는다)
+        if ($config['cf_email_wr_comment_all']) {
+            $sql = " select distinct wr_email from {$write_table}
+                        where wr_email not in ( '{$wr['wr_email']}', '{$member['mb_email']}', '' )
+                        and wr_parent = '$wr_id' ";
+            $result = sql_query($sql);
+            while ($row=sql_fetch_array($result))
+                $array_email[] = $row['wr_email'];
         }
 
         // 중복된 메일 주소는 제거
@@ -323,5 +320,5 @@ else if ($w == 'cu') // 댓글 수정
 
 delete_cache_latest($bo_table);
 
-goto_url(G5_URL.'/b/'.$bo_table.'/'.$wr['wr_parent'].'&amp;'.$qstr.'&amp;#c_'.$comment_id);
+goto_url('./board.php?bo_table='.$bo_table.'&amp;wr_id='.$wr['wr_parent'].'&amp;'.$qstr.'&amp;#c_'.$comment_id);
 ?>

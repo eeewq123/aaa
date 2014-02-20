@@ -374,7 +374,7 @@ if ($w == '' || $w == 'r') {
         alert('올바른 방법으로 수정하여 주십시오.');
     }
 
-    $return_url = G5_URL.'/b/'.$bo_table.'/'.$wr_id;
+    $return_url = './board.php?bo_table='.$bo_table.'&amp;wr_id='.$wr_id;
 
     if ($is_admin == 'super') // 최고관리자 통과
         ;
@@ -587,7 +587,7 @@ if (!($w == 'u' || $w == 'cu') && $config['cf_email_use'] && $board['bo_use_emai
 
     $subject = '['.$config['cf_title'].'] '.$board['bo_subject'].' 게시판에 '.$str.'글이 올라왔습니다.';
 
-    $link_url = G5_URL.'/b/'.$bo_table.'/'.$wr_id.'&amp;'.$qstr;
+    $link_url = G5_BBS_URL.'/board.php?bo_table='.$bo_table.'&amp;wr_id='.$wr_id.'&amp;'.$qstr;
 
     include_once(G5_LIB_PATH.'/mailer.lib.php');
 
@@ -631,7 +631,7 @@ if (!($w == 'u' || $w == 'cu') && $config['cf_email_use'] && $board['bo_use_emai
 delete_cache_latest($bo_table);
 
 if ($file_upload_msg)
-    alert($file_upload_msg, G5_URL.'/b/'.$bo_table.'/'.$wr_id.'@'.$page.$qstr);
+    alert($file_upload_msg, G5_HTTP_BBS_URL.'/board.php?bo_table='.$bo_table.'&amp;wr_id='.$wr_id.'&amp;page='.$page.$qstr);
 else
-    goto_url(G5_URL.'/b/'.$bo_table.'/'.$wr_id.$qstr);
+    goto_url(G5_HTTP_BBS_URL.'/board.php?bo_table='.$bo_table.'&amp;wr_id='.$wr_id.$qstr);
 ?>

@@ -7,9 +7,10 @@ $colspan = 5;
 if ($is_checkbox) $colspan++;
 if ($is_good) $colspan++;
 if ($is_nogood) $colspan++;
-?>
 
-<link rel="stylesheet" href="<?php echo $board_skin_url ?>/style.css">
+// add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
+add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style.css">', 0);
+?>
 
 <h2 id="container_title"><?php echo $board['bo_subject'] ?><span class="sound_only"> 목록</span></h2>
 
@@ -44,7 +45,7 @@ if ($is_nogood) $colspan++;
     </div>
     <!-- } 게시판 페이지 정보 및 버튼 끝 -->
 
-    <form name="fboardlist" id="fboardlist" action="<?php echo G5_BBS_URL ?>/board_list_update.php" onsubmit="return fboardlist_submit(this);" method="post">
+    <form name="fboardlist" id="fboardlist" action="./board_list_update.php" onsubmit="return fboardlist_submit(this);" method="post">
     <input type="hidden" name="bo_table" value="<?php echo $bo_table ?>">
     <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
     <input type="hidden" name="stx" value="<?php echo $stx ?>">
@@ -225,7 +226,7 @@ function fboardlist_submit(f) {
             return false;
 
         f.removeAttribute("target");
-        f.action = "<?php echo G5_BBS_URL ?>/board_list_update.php";
+        f.action = "./board_list_update.php";
     }
 
     return true;

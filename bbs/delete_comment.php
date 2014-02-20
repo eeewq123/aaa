@@ -84,5 +84,5 @@ sql_query(" delete from {$g5['board_new_table']} where bo_table = '{$bo_table}' 
 
 delete_cache_latest($bo_table);
 
-goto_url(G5_URL.'/b/'.$bo_table.'/'.$write['wr_parent'].'@'.$page. $qstr);
+goto_url('./board.php?bo_table='.$bo_table.'&amp;wr_id='.$write['wr_parent'].'&amp;page='.$page. $qstr);
 ?>

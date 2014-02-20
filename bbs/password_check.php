@@ -2,7 +2,7 @@
 include_once('./_common.php');
 
 if ($w == 's') {
-    $qstr = $bo_table.'/'.$wr_id.'@'.$page.'&amp;sfl='.$sfl.'&amp;stx='.$stx.'&amp;sop='.$sop;
+    $qstr = 'bo_table='.$bo_table.'&amp;sfl='.$sfl.'&amp;stx='.$stx.'&amp;sop='.$sop.'&amp;wr_id='.$wr_id.'&amp;page='.$page;
 
     $wr = get_write($write_table, $wr_id);
 
@@ -18,5 +18,5 @@ if ($w == 's') {
 } else
     alert('w 값이 제대로 넘어오지 않았습니다.');
 
-goto_url(G5_URL.'/b/'.$qstr);
+goto_url('./board.php?'.$qstr);
 ?>
