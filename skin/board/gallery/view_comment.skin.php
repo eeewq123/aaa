@@ -64,8 +64,8 @@ var char_max = parseInt(<?php echo $comment_max ?>); // 최대
                 $c_wr_content = $cmt['wr_content'];
             }
 
-            $c_reply_href = './board.php?'.$query_string.'&amp;c_id='.$comment_id.'&amp;w=c#bo_vc_w';
-            $c_edit_href = './board.php?'.$query_string.'&amp;c_id='.$comment_id.'&amp;w=cu#bo_vc_w';
+            $c_reply_href = G5_BBS_URL.'/board.php?'.$query_string.'&amp;c_id='.$comment_id.'&amp;w=c#bo_vc_w';
+            $c_edit_href = G5_BBS_URL.'/board.php?'.$query_string.'&amp;c_id='.$comment_id.'&amp;w=cu#bo_vc_w';
          ?>
         <footer>
             <ul class="bo_vc_act">
@@ -89,7 +89,7 @@ var char_max = parseInt(<?php echo $comment_max ?>); // 최대
 <!-- 댓글 쓰기 시작 { -->
 <aside id="bo_vc_w">
     <h2>댓글쓰기</h2>
-    <form name="fviewcomment" action="./write_comment_update.php" onsubmit="return fviewcomment_submit(this);" method="post" autocomplete="off">
+    <form name="fviewcomment" action="<?php echo G5_BBS_URL?>/write_comment_update.php" onsubmit="return fviewcomment_submit(this);" method="post" autocomplete="off">
     <input type="hidden" name="w" value="<?php echo $w ?>" id="w">
     <input type="hidden" name="bo_table" value="<?php echo $bo_table ?>">
     <input type="hidden" name="wr_id" value="<?php echo $wr_id ?>">

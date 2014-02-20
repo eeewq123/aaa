@@ -22,7 +22,7 @@ if ($_POST['facebook_checked']) {
 
     if ($user) {
         try {
-            $link = G5_BBS_URL.'/board.php?bo_table='.$bo_table.'&wr_id='.$wr['wr_parent'].'&#c_'.$comment_id;
+            $link = G5_URL.'/b/'.$bo_table.'/'.$wr['wr_parent'].'&#c_'.$comment_id;
             $attachment = array(
                 'message'       => stripslashes($wr_content),
                 'name'          => $wr_subject,

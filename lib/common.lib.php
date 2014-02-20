@@ -380,9 +380,9 @@ function get_list($write_row, $board, $skin_url, $subject_len=40)
         $list['icon_link'] = '<img src="'.$skin_url.'/img/icon_link.gif" alt="관련링크">';
 
     // 분류명 링크
-    $list['ca_name_href'] = G5_BBS_URL.'/board.php?bo_table='.$board['bo_table'].'&amp;sca='.urlencode($list['ca_name']);
+    $list['ca_name_href'] = G5_URL.'/b/'.$board['bo_table'].'&amp;sca='.urlencode($list['ca_name']);
 
-    $list['href'] = G5_BBS_URL.'/board.php?bo_table='.$board['bo_table'].'&amp;wr_id='.$list['wr_id'].$qstr;
+    $list['href'] = G5_URL.'/b/'.$board['bo_table'].'/'.$list['wr_id'].$qstr;
     $list['comment_href'] = $list['href'];
 
     $list['icon_new'] = '';
@@ -1215,7 +1215,7 @@ function get_sideview($mb_id, $name='', $email='', $homepage='')
         if(!$bo_table)
             return $name;
 
-        $tmp_name = '<a href="'.G5_BBS_URL.'/board.php?bo_table='.$bo_table.'&amp;sca='.$sca.'&amp;sfl=wr_name,1&amp;stx='.$name.'" title="'.$name.' 이름으로 검색" class="sv_guest" onclick="return false;">'.$name.'</a>';
+        $tmp_name = '<a href="'.G5_BBS_URL.'/b/'.$bo_table.'&amp;sca='.$sca.'&amp;sfl=wr_name,1&amp;stx='.$name.'" title="'.$name.' 이름으로 검색" class="sv_guest" onclick="return false;">'.$name.'</a>';
         $title_mb_id = '[비회원]';
     }
 
@@ -1237,9 +1237,9 @@ function get_sideview($mb_id, $name='', $email='', $homepage='')
         $str2 .= "<a href=\"".G5_BBS_URL."/profile.php?mb_id=".$mb_id."\" onclick=\"win_profile(this.href); return false;\">자기소개</a>\n";
     if($bo_table) {
         if($mb_id)
-            $str2 .= "<a href=\"".G5_BBS_URL."/board.php?bo_table=".$bo_table."&amp;sca=".$sca."&amp;sfl=mb_id,1&amp;stx=".$mb_id."\">아이디로 검색</a>\n";
+            $str2 .= "<a href=\"".G5_URL."/b/".$bo_table."&amp;sca=".$sca."&amp;sfl=mb_id,1&amp;stx=".$mb_id."\">아이디로 검색</a>\n";
         else
-            $str2 .= "<a href=\"".G5_BBS_URL."/board.php?bo_table=".$bo_table."&amp;sca=".$sca."&amp;sfl=wr_name,1&amp;stx=".$name."\">이름으로 검색</a>\n";
+            $str2 .= "<a href=\"".G5_URL."/b/".$bo_table."&amp;sca=".$sca."&amp;sfl=wr_name,1&amp;stx=".$name."\">이름으로 검색</a>\n";
     }
     if($mb_id)
         $str2 .= "<a href=\"".G5_BBS_URL."/new.php?mb_id=".$mb_id."\">전체게시물</a>\n";
@@ -1930,7 +1930,7 @@ function get_uniqid()
     sql_query(" LOCK TABLE {$g5['uniqid_table']} WRITE ");
     while (1) {
         // 년월일시분초에 100분의 1초 두자리를 추가함 (1/100 초 앞에 자리가 모자르면 0으로 채움)
-        $key = date('ymdHis', time()) . str_pad((int)(microtime()*100), 2, "0", STR_PAD_LEFT);
+        $key = date('YmdHis', time()) . str_pad((int)(microtime()*100), 2, "0", STR_PAD_LEFT);
 
         $result = sql_query(" insert into {$g5['uniqid_table']} set uq_id = '$key', uq_ip = '{$_SERVER['REMOTE_ADDR']}' ", false);
         if ($result) break; // 쿼리가 정상이면 빠진다.
@@ -2170,92 +2170,47 @@ if (!function_exists('file_put_contents')) {
 // HTML 마지막 처리
 function html_end()
 {
-    global $html_process;
+    global $config, $g5, $member;
 
-    return $html_process->run();
-}
+    // 현재접속자 처리
+    $tmp_sql = " select count(*) as cnt from {$g5['login_table']} where lo_ip = '{$_SERVER['REMOTE_ADDR']}' ";
+    $tmp_row = sql_fetch($tmp_sql);
 
-function add_stylesheet($stylesheet, $order=0)
-{
-    global $html_process;
+    if ($tmp_row['cnt']) {
+        $tmp_sql = " update {$g5['login_table']} set mb_id = '{$member['mb_id']}', lo_datetime = '".G5_TIME_YMDHIS."', lo_location = '{$g5['lo_location']}', lo_url = '{$g5['lo_url']}' where lo_ip = '{$_SERVER['REMOTE_ADDR']}' ";
+        sql_query($tmp_sql, FALSE);
+    } else {
+        $tmp_sql = " insert into {$g5['login_table']} ( lo_ip, mb_id, lo_datetime, lo_location, lo_url ) values ( '{$_SERVER['REMOTE_ADDR']}', '{$member['mb_id']}', '".G5_TIME_YMDHIS."', '{$g5['lo_location']}',  '{$g5['lo_url']}' ) ";
+        sql_query($tmp_sql, FALSE);
 
-    if(trim($stylesheet))
-        $html_process->merge_stylesheet($stylesheet, $order);
-}
+        // 시간이 지난 접속은 삭제한다
+        sql_query(" delete from {$g5['login_table']} where lo_datetime < '".date("Y-m-d H:i:s", G5_SERVER_TIME - (60 * $config['cf_login_minutes']))."' ");
 
-class html_process {
-    protected $css = array();
-
-    function merge_stylesheet($stylesheet, $order)
-    {
-        $links = $this->css;
-        $is_merge = true;
-
-        foreach($links as $link) {
-            if($link[1] == $stylesheet) {
-                $is_merge = false;
-                break;
-            }
-        }
-
-        if($is_merge)
-            $this->css[] = array($order, $stylesheet);
+        // 부담(overhead)이 있다면 테이블 최적화
+        //$row = sql_fetch(" SHOW TABLE STATUS FROM `$mysql_db` LIKE '$g5['login_table']' ");
+        //if ($row['Data_free'] > 0) sql_query(" OPTIMIZE TABLE $g5['login_table'] ");
     }
 
-    function run()
-    {
-        global $config, $g5, $member;
-
-        // 현재접속자 처리
-        $tmp_sql = " select count(*) as cnt from {$g5['login_table']} where lo_ip = '{$_SERVER['REMOTE_ADDR']}' ";
-        $tmp_row = sql_fetch($tmp_sql);
-
-        if ($tmp_row['cnt']) {
-            $tmp_sql = " update {$g5['login_table']} set mb_id = '{$member['mb_id']}', lo_datetime = '".G5_TIME_YMDHIS."', lo_location = '{$g5['lo_location']}', lo_url = '{$g5['lo_url']}' where lo_ip = '{$_SERVER['REMOTE_ADDR']}' ";
-            sql_query($tmp_sql, FALSE);
-        } else {
-            $tmp_sql = " insert into {$g5['login_table']} ( lo_ip, mb_id, lo_datetime, lo_location, lo_url ) values ( '{$_SERVER['REMOTE_ADDR']}', '{$member['mb_id']}', '".G5_TIME_YMDHIS."', '{$g5['lo_location']}',  '{$g5['lo_url']}' ) ";
-            sql_query($tmp_sql, FALSE);
-
-            // 시간이 지난 접속은 삭제한다
-            sql_query(" delete from {$g5['login_table']} where lo_datetime < '".date("Y-m-d H:i:s", G5_SERVER_TIME - (60 * $config['cf_login_minutes']))."' ");
-
-            // 부담(overhead)이 있다면 테이블 최적화
-            //$row = sql_fetch(" SHOW TABLE STATUS FROM `$mysql_db` LIKE '$g5['login_table']' ");
-            //if ($row['Data_free'] > 0) sql_query(" OPTIMIZE TABLE $g5['login_table'] ");
-        }
-
-        $buffer = ob_get_contents();
-        ob_end_clean();
-
-        $stylesheet = '';
-        $links = $this->css;
-
-        if(!empty($links)) {
-            foreach ($links as $key => $row) {
-                $order[$key] = $row[0];
-                $index[$key] = $key;
-                $style[$key] = $row[1];
-            }
-
-            array_multisort($order, SORT_ASC, $index, SORT_ASC, $links);
-
-            foreach($links as $link) {
-                if(!trim($link[1]))
-                    continue;
-
-                $stylesheet .= PHP_EOL.$link[1];
-            }
-        }
-
-        /*
-        </title>
-        <link rel="stylesheet" href="default.css">
-        밑으로 스킨의 스타일시트가 위치하도록 하게 한다.
-        */
-        return preg_replace('#(</title>[^<]*<link[^>]+>)#', "$1$stylesheet", $buffer);
+    // 버퍼의 내용에서 body 태그 중간의 외부 css 파일을 CAPTURE 하여 head 태그로 이동시켜준다.
+    $buffer = ob_get_contents();
+    ob_end_clean();
+    preg_match('#<body>(.*)</body>#is', $buffer, $bodys);
+    preg_match_all('/[\n\r]?(<!.*)?(<link[^>]+>).*(<!.*>)?/i', $bodys[0], $links);
+    $stylesheet = '';
+    $links[0] = array_unique($links[0]);
+    foreach ($links[0] as $key=>$link) {
+        //$link = PHP_EOL.$links[0][$i];
+        $stylesheet .= $link;
+        $buffer = preg_replace('#'.$link.'#', '', $buffer);
     }
+    /*
+    </title>
+    <link rel="stylesheet" href="default.css">
+    밑으로 스킨의 스타일시트가 위치하도록 하게 한다.
+    */
+    return preg_replace('#(</title>[^<]*<link[^>]+>)#', "$1$stylesheet", $buffer);
 }
+
 
 // 휴대폰번호의 숫자만 취한 후 중간에 하이픈(-)을 넣는다.
 function hyphen_hp_number($hp)
@@ -2513,6 +2468,21 @@ function module_exec_check($exe, $type)
                             }
                         }
                         break;
+                    case 'pp_cli':
+                        exec($exe.' -h 2>&1', $out);
+
+                        if(empty($out)) {
+                            $executable = false;
+                            break;
+                        }
+
+                        for($i=0; $i<count($out); $i++) {
+                            if(strpos($out[$i], 'PayPLUS CLIENT') !== false) {
+                                $search = true;
+                                break;
+                            }
+                        }
+                        break;
                     case 'okname':
                         exec($exe.' D 2>&1', $out);
 
@@ -2579,13 +2549,5 @@ function check_input_vars()
             alert('폼에서 전송된 변수의 개수가 max_input_vars 값보다 큽니다.\\n전송된 값중 일부는 유실되어 DB에 기록될 수 있습니다.\\n\\n문제를 해결하기 위해서는 서버 php.ini의 max_input_vars 값을 변경하십시오.');
         }
     }
-}
-
-// HTML 특수문자 변환 htmlspecialchars
-function htmlspecialchars2($str)
-{
-    $trans = array("\"" => "&#034;", "'" => "&#039;", "<"=>"&#060;", ">"=>"&#062;");
-    $str = strtr($str, $trans);
-    return $str;
 }
 ?>

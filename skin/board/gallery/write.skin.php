@@ -1,9 +1,8 @@
 <?php
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
-
-// add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style.css">', 0);
 ?>
+
+<link rel="stylesheet" href="<?php echo $board_skin_url ?>/style.css">
 
 <section id="bo_w">
     <h2 id="container_title"><?php echo $g5['title'] ?></h2>
@@ -175,7 +174,7 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style.css">', 0
 
     <div class="btn_confirm">
         <input type="submit" value="작성완료" id="btn_submit" accesskey="s" class="btn_submit">
-        <a href="./board.php?bo_table=<?php echo $bo_table ?>" class="btn_cancel">취소</a>
+        <a href="<?php echo G5_URL ?>/b/<?php echo $bo_table ?>" class="btn_cancel">취소</a>
     </div>
     </form>
 

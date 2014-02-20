@@ -34,7 +34,7 @@ if ($member['mb_level'] < $board['bo_download_level']) {
     if ($member['mb_id'])
         alert($alert_msg);
     else
-        alert($alert_msg.'\\n회원이시라면 로그인 후 이용해 보십시오.', G5_BBS_URL.'/login.php?wr_id='.$wr_id.'&amp;'.$qstr.'&amp;url='.urlencode(G5_BBS_URL.'/board.php?bo_table='.$bo_table.'&amp;wr_id='.$wr_id));
+        alert($alert_msg.'\\n회원이시라면 로그인 후 이용해 보십시오.', G5_BBS_URL.'/login.php?wr_id='.$wr_id.'&amp;'.$qstr.'&amp;url='.urlencode(G5_URL.'/b/'.$bo_table.'/'.$wr_id));
 }
 
 $filepath = G5_DATA_PATH.'/file/'.$bo_table.'/'.$file['bf_file'];

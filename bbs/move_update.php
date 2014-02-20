@@ -189,7 +189,7 @@ if ($sw == 'move')
 include G5_SYNDI_PATH.'/include/include.bbs.move_update.php';
 
 $msg = '해당 게시물을 선택한 게시판으로 '.$act.' 하였습니다.';
-$opener_href = './board.php?bo_table='.$bo_table.'&amp;page='.$page.'&amp;'.$qstr;
+$opener_href = G5_URL.'/b/'.$bo_table.'@'.$page.'&amp;'.$qstr;
 
 echo <<<HEREDOC
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
