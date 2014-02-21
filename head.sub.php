@@ -37,27 +37,32 @@ if (G5_IS_MOBILE) {
     echo '<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=0,maximum-scale=10,user-scalable=yes">'.PHP_EOL;
     echo '<meta name="HandheldFriendly" content="true">'.PHP_EOL;
     echo '<meta name="format-detection" content="telephone=no">'.PHP_EOL;
-} else {
-    echo '<meta http-equiv="imagetoolbar" content="no">'.PHP_EOL;
-    echo '<meta http-equiv="X-UA-Compatible" content="IE=10,chrome=1">'.PHP_EOL;
 }
-
-if($config['cf_add_meta'])
-    echo $config['cf_add_meta'].PHP_EOL;
 ?>
 <title><?php echo $g5_head_title; ?></title>
+	<link rel="stylesheet" href="http://bootswatch.com/spacelab/bootstrap.css" media="screen">
+	<link rel="stylesheet" href="http://bootswatch.com/spacelab/bower_components/font-awesome/css/font-awesome.min.css">
+	<!--
+	<link rel="stylesheet" href="<?php echo G5_URL?>/bootstrap/css/bootstrap.css">
+	http://bootswatch.com/spacelab/ 스킨을 사용한다
+	<link rel="stylesheet" href="http://bootswatch.com/spacelab/bootstrap.css" media="screen">
+	<link rel="stylesheet" href="http://bootswatch.com/spacelab/bower_components/font-awesome/css/font-awesome.min.css">	 // font관련
+	bootstrap의 기본 body fontsize관계로 boot_add.css에서 폰트를 강제 설정한다.
+	<link rel="stylesheet" href="<?php echo G5_URL?>/bootstrap/css/bootstrap.css">
+	-->
 <?php
 if (defined('G5_IS_ADMIN')) {
     echo '<link rel="stylesheet" href="'.G5_CSS_URL.'/admin.css">'.PHP_EOL;
 } else {
     echo '<link rel="stylesheet" href="'.G5_CSS_URL.'/'.(G5_IS_MOBILE?'mobile':'default').'.css">'.PHP_EOL;
-    // canonical 지정
-    $canonical = '';
-    if ($bo_table && $wr_id) $canonical = 'http://'.$_SERVER['HTTP_HOST'].'/bbs/board.php?bo_table='.$bo_table.'&wr_id='.$wr_id;
-    else $canonical = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-    echo '<link rel="canonical" href="'.$canonical.'">'.PHP_EOL;
-}
 ?>
+	<link rel="stylesheet" href="<?php echo G5_URL?>/bootstrap/css/boot_add.css" >
+<?php    
+}
+echo '<meta http-equiv="imagetoolbar" content="no">';
+echo '<meta http-equiv="X-UA-Compatible" content="IE=Edge">';
+?>
+
 <!--[if lte IE 8]>
 <script src="<?php echo G5_JS_URL ?>/html5.js"></script>
 <![endif]-->
@@ -84,11 +89,18 @@ if ($is_admin) {
 <script src="<?php echo G5_JS_URL ?>/wrest.js"></script>
 <?php
 if(G5_IS_MOBILE) {
+    echo '<script> set_cookie("device_width", screen.width, 6, g5_cookie_domain); </script>'.PHP_EOL;
     echo '<script src="'.G5_JS_URL.'/modernizr.custom.70111.js"></script>'.PHP_EOL; // overflow scroll 감지
 }
-if(!defined('G5_IS_ADMIN'))
+//if(!defined('G5_IS_ADMIN'))
     echo $config['cf_add_script'];
 ?>
+
+<!-- boot strap 추가 -->
+<script src="<?php echo G5_URL?>/bootstrap/js/bootstrap.min.js"></script>
+<script src="<?php echo G5_URL?>/bootstrap/js/bootswatch.js"></script>
+<!-- boot strap 끝-->
+
 </head>
 <body>
 <?php

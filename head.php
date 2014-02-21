@@ -9,6 +9,11 @@ include_once(G5_LIB_PATH.'/visit.lib.php');
 include_once(G5_LIB_PATH.'/connect.lib.php');
 include_once(G5_LIB_PATH.'/popular.lib.php');
 
+if (G5_IS_MOBILE) {
+    include_once(G5_MOBILE_PATH.'/head.php');
+    return;
+}
+
 // 상단 파일 경로 지정 : 이 코드는 가능한 삭제하지 마십시오.
 if ($config['cf_include_head']) {
     if (!@include_once($config['cf_include_head'])) {
@@ -16,133 +21,173 @@ if ($config['cf_include_head']) {
     }
     return; // 이 코드의 아래는 실행을 하지 않습니다.
 }
-
-if (G5_IS_MOBILE) {
-    include_once(G5_MOBILE_PATH.'/head.php');
-    return;
-}
 ?>
 
 <!-- 상단 시작 { -->
-<div id="hd">
-    <h1 id="hd_h1"><?php echo $g5['title'] ?></h1>
+    <div class="navbar navbar-default navbar-fixed-top">
 
-    <div id="skip_to_container"><a href="#container">본문 바로가기</a></div>
-
-    <?php if(defined('_INDEX_')) { // index에서만 실행 ?>
-    <div id="hd_pop">
-        <h2>팝업레이어 알림</h2>
-        <?php include G5_BBS_PATH.'/newwin.inc.php'; // 팝업레이어 ?>
-    </div>
-    <?php } ?>
-
-    <div id="hd_wrapper">
-
-        <div id="logo">
-            <a href="<?php echo G5_URL ?>"><img src="<?php echo G5_IMG_URL ?>/logo.jpg" alt="<?php echo $config['cf_title']; ?>"></a>
+	  <div class="container">
+        <div class="navbar-header">
+          <a href="<?php echo G5_URL ?>" class="navbar-brand">GNUBOARD5</a>
+          <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
         </div>
+        <div class="navbar-collapse collapse" id="navbar-main">        
 
-        <fieldset id="hd_sch">
-            <legend>사이트 내 전체검색</legend>
-            <form name="fsearchbox" method="get" action="<?php echo G5_BBS_URL ?>/search.php" onsubmit="return fsearchbox_submit(this);">
-            <input type="hidden" name="sfl" value="wr_subject||wr_content">
-            <input type="hidden" name="sop" value="and">
-            <label for="sch_stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
-            <input type="text" name="stx" id="sch_stx" maxlength="20">
-            <input type="submit" id="sch_submit" value="검색">
-            </form>
-
-            <script>
-            function fsearchbox_submit(f)
-            {
-                if (f.stx.value.length < 2) {
-                    alert("검색어는 두글자 이상 입력하십시오.");
-                    f.stx.select();
-                    f.stx.focus();
-                    return false;
-                }
-
-                // 검색에 많은 부하가 걸리는 경우 이 주석을 제거하세요.
-                var cnt = 0;
-                for (var i=0; i<f.stx.value.length; i++) {
-                    if (f.stx.value.charAt(i) == ' ')
-                        cnt++;
-                }
-
-                if (cnt > 1) {
-                    alert("빠른 검색을 위하여 검색어에 공백은 한개만 입력할 수 있습니다.");
-                    f.stx.select();
-                    f.stx.focus();
-                    return false;
-                }
-
-                return true;
-            }
-            </script>
-        </fieldset>
-
-        <div id="text_size">
-            <!-- font_resize('엘리먼트id', '제거할 class', '추가할 class'); -->
-            <button id="size_down" onclick="font_resize('container', 'ts_up ts_up2', '');"><img src="<?php echo G5_URL; ?>/img/ts01.gif" alt="기본"></button>
-            <button id="size_def" onclick="font_resize('container', 'ts_up ts_up2', 'ts_up');"><img src="<?php echo G5_URL; ?>/img/ts02.gif" alt="크게"></button>
-            <button id="size_up" onclick="font_resize('container', 'ts_up ts_up2', 'ts_up2');"><img src="<?php echo G5_URL; ?>/img/ts03.gif" alt="더크게"></button>
-        </div>
-
-        <ul id="tnb">
+          <ul class="nav navbar-nav navbar-right">
             <?php if ($is_member) {  ?>
             <?php if ($is_admin) {  ?>
-            <li><a href="<?php echo G5_ADMIN_URL ?>"><b>관리자</b></a></li>
-            <?php }  ?>
-            <li><a href="<?php echo G5_BBS_URL ?>/member_confirm.php?url=<?php echo G5_BBS_URL ?>/register_form.php">정보수정</a></li>
-            <li><a href="<?php echo G5_BBS_URL ?>/logout.php">로그아웃</a></li>
-            <?php } else {  ?>
-            <li><a href="<?php echo G5_BBS_URL ?>/register.php">회원가입</a></li>
-            <li><a href="<?php echo G5_BBS_URL ?>/login.php"><b>로그인</b></a></li>
-            <?php }  ?>
-            <li><a href="<?php echo G5_BBS_URL ?>/faq.php">FAQ</a></li>
-            <li><a href="<?php echo G5_BBS_URL ?>/qalist.php">1:1문의</a></li>
-            <li><a href="<?php echo G5_BBS_URL ?>/current_connect.php">접속자 <?php echo connect(); // 현재 접속자수  ?></a></li>
-            <li><a href="<?php echo G5_BBS_URL ?>/new.php">새글</a></li>
-        </ul>
-    </div>
-
-    <hr>
-
-    <nav id="gnb">
-        <script>$('#gnb').addClass('gnb_js');</script>
-        <h2>메인메뉴</h2>
-        <ul id="gnb_1dul">
-            <?php
-            $sql = " select * from {$g5['group_table']} where gr_show_menu = '1' and gr_device <> 'mobile' order by gr_order ";
-            $result = sql_query($sql);
-            for ($gi=0; $row=sql_fetch_array($result); $gi++) { // gi 는 group index
-             ?>
-            <li class="gnb_1dli">
-                <a href="<?php echo G5_BBS_URL ?>/group.php?gr_id=<?php echo $row['gr_id'] ?>" class="gnb_1da"><?php echo $row['gr_subject'] ?></a>
-                <ul class="gnb_2dul">
-                    <?php
-                    $sql2 = " select * from {$g5['board_table']} where gr_id = '{$row['gr_id']}' and bo_show_menu = '1' and bo_device <> 'mobile' order by bo_order ";
-                    $result2 = sql_query($sql2);
-                    for ($bi=0; $row2=sql_fetch_array($result2); $bi++) { // bi 는 board index
-                     ?>
-                    <li class="gnb_2dli"><a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=<?php echo $row2['bo_table'] ?>" class="gnb_2da"><?php echo $row2['bo_subject'] ?></a></li>
-                    <?php } ?>
-                </ul>
+            <li>
+                <a href="<?php echo G5_ADMIN_URL ?>">                    
+                    관리자
+                </a>
             </li>
-            <?php } ?>
-            <?php if ($gi == 0) {  ?><li class="gnb_empty">생성된 메뉴가 없습니다.</li><?php }  ?>
-        </ul>
-    </nav>
-</div>
-<!-- } 상단 끝 -->
+            <?php }  ?>
+            <li>
+                <a href="<?php echo G5_BBS_URL ?>/member_confirm.php?url=<?php echo G5_BBS_URL ?>/register_form.php">                    
+                    내 정보
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo G5_BBS_URL ?>/logout.php">                    
+                    로그아웃
+                </a>
+            </li>
+            <?php } else {  ?>
+            <li>
+                <a href="<?php echo G5_BBS_URL ?>/register.php">                    
+                    회원가입
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo G5_BBS_URL ?>/login.php">                    
+                    로그인
+                </a>
+            </li>
+            <?php }  ?>
+            <li>
+                <a href="<?php echo G5_BBS_URL ?>/current_connect.php">                    
+                    접속자 <?php echo connect(); // 현재 접속자수  ?>
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo G5_BBS_URL ?>/new.php">
+                    새글
+                </a>
+            </li>
+          </ul>
 
-<hr>
-
-<!-- 콘텐츠 시작 { -->
-<div id="wrapper">
-    <div id="aside">
-        <?php echo outlogin('basic'); // 외부 로그인  ?>
-        <?php echo poll('basic'); // 설문조사  ?>
+        </div>
+      </div>
     </div>
-    <div id="container">
-        <?php if ((!$bo_table || $w == 's' ) && !defined("_INDEX_")) { ?><div id="container_title"><?php echo $g5['title'] ?></div><?php } ?>
+
+    <div class="container add_container" >        
+
+	<div class="navbar navbar-inverse">
+		<div class="container">
+			<div class="navbar-header">
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-top">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="<?php echo G5_URL ?>">Home</a>
+			</div>
+			<div class="navbar-collapse collapse navbar-inverse-collapse"  id="navbar-top">
+				<ul class="nav navbar-nav">
+					<!--
+					<li class="active"><a href="#">Active</a></li>
+					-->
+					<?php
+					$sql = " select * from {$g5['group_table']} where gr_show_menu = '1' and gr_device <> 'mobile' order by gr_order ";
+					$result = sql_query($sql);
+					for ($gi=0; $row=sql_fetch_array($result); $gi++) { // gi 는 group index
+					 ?>
+					<li class="dropdown">
+						<a href="<?php echo G5_BBS_URL ?>/group.php?gr_id=<?php echo $row['gr_id'] ?>" class="dropdown-toggle" data-toggle="dropdown">
+							<?php echo $row['gr_subject'] ?><b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu">
+							<?php
+							$sql2 = " select * from {$g5['board_table']} where gr_id = '{$row['gr_id']}' and bo_show_menu = '1' and bo_device <> 'mobile' order by bo_order ";
+							$result2 = sql_query($sql2);
+							for ($bi=0; $row2=sql_fetch_array($result2); $bi++) { // bi 는 board index
+							 ?>
+							<li>
+								<a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=<?php echo $row2['bo_table'] ?>">
+									<?php echo $row2['bo_subject'] ?>
+								</a>
+							</li>
+							<?php } ?>
+						</ul>
+					</li>
+					<?php } ?>
+					<?php if ($gi == 0) {  ?><li >생성된 메뉴가 없습니다.</li><?php }  ?>
+					<!--
+					원본 주석 참고하세요 dropdown menu
+					<li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                          <li><a href="#">Action</a></li>
+                          <li><a href="#">Another action</a></li>
+                          <li><a href="#">Something else here</a></li>
+                          <li class="divider"></li>
+                          <li class="dropdown-header">Dropdown header</li>
+                          <li><a href="#">Separated link</a></li>
+                          <li><a href="#">One more separated link</a></li>
+                        </ul>
+                      </li>
+					 -->
+				</ul>
+				<form _lpchecked="1" name="fsearchbox" method="get" action="<?php echo G5_BBS_URL ?>/search.php" onsubmit="return fsearchbox_submit(this);" class="navbar-form navbar-left" _lpchecked="1">        
+					<input type="hidden" name="sfl" value="wr_subject||wr_content">
+					<input type="hidden" name="sop" value="and">              
+					 <input type="text" name="stx" class="form-control col-lg-8" placeholder="Search">
+				</form>
+				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li><a href="#">Drop No.1</a></li>
+						<li><a href="#">Drop No.2</a></li>
+						<li><a href="#">Drop No.3</a></li>
+						<li class="divider"></li>
+						<li><a href="#">Separated link</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div><!-- /.nav-collapse -->
+		</div><!-- /.container -->
+	</div>
+
+		<!-- left -->
+        <div class="col-lg-3">
+            <?php echo outlogin('boot_basic'); // 외부 로그인  ?>            
+			<div class="visible-lg" >
+              <form class="navbar-form " _lpchecked="1" name="fsearchbox" method="get" action="<?php echo G5_BBS_URL ?>/search.php" onsubmit="return fsearchbox_submit(this);">        
+              <div class="input-group">
+                <input type="hidden" name="sfl" value="wr_subject||wr_content">
+                <input type="hidden" name="sop" value="and">
+                <span class="input-group-addon">Total</span>
+                <input type="text" name="stx" maxlength="20" class="form-control" type="text">                            
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button">검색</button>
+                </span>
+              </div>
+              </form>              
+		  </div>
+
+			<div class="visible-lg" >
+			<?php include_once (G5_PATH."/bootstrap/include/new_reaction.php");?>
+			<?php include_once (G5_PATH."/bootstrap/include/new_list.php");?>
+			<?php include_once (G5_PATH."/bootstrap/include/new_comment.php");?>
+			<?php include_once (G5_PATH."/bootstrap/include/new_topic.php");?>
+            <?//php echo poll('basic'); // 설문조사  ?>
+			</div>
+		</div>
+		<!-- body-->
+		<div class="col-lg-9" >        
+
